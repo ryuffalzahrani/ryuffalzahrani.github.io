@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UniFlow — Smart Study Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f7f8f5;--surface:#fff;--soft:#eef3ee;--tint:#e3eee6;--ink:#15201d;--ink2:#3d4a44;--muted:#55635d;--line:#d7dfd9;--accent:#39a86b;--accent-text:#17714a;--accent-soft:#e6f3ea;--sand:#f6ecd6;--sand-text:#7a5a12;--red:#fbe4e0;--red-text:#9a2a1c;color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1714;--surface:#17221e;--soft:#1b2924;--tint:#203229;--ink:#eef3ef;--ink2:#cbd6d0;--muted:#a3b2aa;--line:#2b3b34;--accent:#4cc383;--accent-text:#6fd6a0;--accent-soft:#1f3a2c;--sand:#3a2f14;--sand-text:#e5c474;--red:#3d1f1b;--red-text:#f1a79c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1714;--surface:#17221e;--soft:#1b2924;--tint:#203229;--ink:#eef3ef;--ink2:#cbd6d0;--muted:#a3b2aa;--line:#2b3b34;--accent:#4cc383;--accent-text:#6fd6a0;--accent-soft:#1f3a2c;--sand:#3a2f14;--sand-text:#e5c474;--red:#3d1f1b;--red-text:#f1a79c;color-scheme:dark}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.55 "DM Sans",system-ui,sans-serif}
+.wrap{width:min(960px,calc(100% - 28px));margin:0 auto;padding:22px 0 40px}
+h1,h2,h3{font-family:"Space Grotesk",system-ui,sans-serif;margin:0;letter-spacing:-.02em}
+h1{font-size:30px}h1 span{color:var(--accent)}h2{font-size:18px;margin-bottom:12px}h3{font-size:16px}
+.sub{color:var(--muted);margin:2px 0 18px;font-size:13px}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:16px;padding-bottom:2px}
+.tabs button{border:1px solid var(--line);background:var(--surface);color:var(--ink2);border-radius:999px;padding:8px 16px;font:600 13px inherit;font-family:inherit;cursor:pointer;white-space:nowrap}
+.tabs button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}.grid2 .card{margin:0}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.kpi{background:var(--tint);border-radius:14px;padding:14px}.kpi b{display:block;font:700 24px "Space Grotesk",sans-serif}.kpi small{color:var(--muted);font-size:12px}
+.muted{color:var(--muted)}
+.task{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid var(--line)}
+.task:first-of-type{border-top:0}.task.done .tt{text-decoration:line-through;color:var(--muted)}
+.tt{font-weight:700}.meta{font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;margin-top:3px}
+.badge{border-radius:999px;padding:2px 9px;font-size:11px;font-weight:700;background:var(--accent-soft);color:var(--accent-text)}
+.badge.warn{background:var(--sand);color:var(--sand-text)}.badge.bad{background:var(--red);color:var(--red-text)}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:8px 13px;font:700 13px inherit;font-family:inherit;cursor:pointer}
+.btn.p{background:var(--ink);color:var(--bg);border-color:var(--ink)}.btn.s{padding:5px 10px;font-size:12px}
+.tips{margin:0;padding-left:18px;color:var(--ink2)}.tips li{margin:8px 0}
+form.f{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}
+label{font-size:12px;font-weight:700;color:var(--muted);display:block}
+input,select{width:100%;margin-top:4px;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 0}
+.chip{display:inline-flex;gap:6px;align-items:center;background:var(--accent-soft);color:var(--accent-text);border-radius:999px;padding:5px 6px 5px 12px;font-size:13px;font-weight:700}
+.chip button{border:0;background:none;color:inherit;cursor:pointer;font-size:16px;line-height:1}
+.meter{height:8px;border-radius:9px;background:var(--soft);overflow:hidden;margin:10px 0}.meter i{display:block;height:100%;background:var(--accent)}
+.meter.warn i{background:#d9a62e}.meter.bad i{background:#d9553f}
+.rrow{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.bar{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px}.bar span:first-child{width:130px;flex:none}
+.bar .meter{flex:1;margin:0}.bar b{width:44px;text-align:right}
+svg text{fill:var(--muted);font:11px "DM Sans",sans-serif}
+.empty{text-align:center;padding:34px 16px}
+.foot{font-size:12px;color:var(--muted);margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}.bar span:first-child{width:90px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="sub" style="margin:0 0 10px"><a href="index.html#projects" style="color:var(--accent-text);font-weight:700;text-decoration:none">← Back to portfolio</a></p>
+  <h1>Uni<span>Flow</span></h1>
+  <p class="sub">Smart university study assistant — planner, analytics, risk prediction and daily guidance.</p>
+  <nav class="tabs" id="tabs"></nav>
+  <main id="view"></main>
+  <div class="foot">
+    <span>Data stays in your browser.</span>
+    <button class="btn s" data-act="sample">Load sample data</button>
+    <button class="btn s" data-act="clear">Clear all data</button>
+  </div>
+</div>
+<script>
+const K="uniflow:v1";
+let S={courses:[],tasks:[],sessions:[]},tab="today";
+try{const r=localStorage.getItem(K);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
+const uid=()=>Math.random().toString(36).slice(2,9);
+const iso=d=>{const x=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return x.toISOString().slice(0,10)};
+const today=()=>iso(new Date());
+const addDays=n=>{const d=new Date();d.setDate(d.getDate()+n);return iso(d)};
+const diff=a=>Math.round((new Date(a+"T00:00")-new Date(today()+"T00:00"))/864e5);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const cname=id=>(S.courses.find(c=>c.id===id)||{name:"General"}).name;
+const sess=n=>S.sessions.filter(s=>diff(s.date)>-n&&diff(s.date)<=0);
+const hrs=a=>a.reduce((x,s)=>x+s.min,0)/60;
+const W={exam:3,quiz:2,assignment:1.5};
+const prio=t=>{const d=diff(t.due);return(d<0?5:4/(d+1))+(W[t.type]||1)+t.hours*.3};
+const open=()=>S.tasks.filter(t=>!t.done).sort((a,b)=>prio(b)-prio(a));
+const dueLabel=d=>{const n=diff(d);return n<0?`Overdue ${-n}d`:n===0?"Due today":n===1?"Due tomorrow":`Due in ${n} days`};
+const suggest=t=>{const d=Math.max(1,Math.min(diff(t.due),5));return Math.min(120,Math.max(25,Math.round(t.hours*60/d/15)*15))};
+function streak(){const has=d=>S.sessions.some(s=>s.date===addDays(d));let i=has(0)?0:-1,n=0;while(has(i)){n++;i--}return n}
+
+/* Transparent risk model: weighted factors -> logistic score (0–100%) */
+function risk(c){
+  const T=S.tasks.filter(t=>t.course===c.id),O=T.filter(t=>!t.done);
+  const over=O.filter(t=>diff(t.due)<0).length;
+  const load=O.filter(t=>diff(t.due)<=7).reduce((a,t)=>a+t.hours,0);
+  const st=hrs(sess(7).filter(s=>s.course===c.id));
+  const gap=Math.max(0,load-st);
+  const done=T.length?T.filter(t=>t.done).length/T.length:1;
+  const f=sess(14).filter(s=>s.course===c.id);
+  const focus=f.length?f.reduce((a,s)=>a+s.focus,0)/f.length:3;
+  const cons=new Set(sess(7).map(s=>s.date)).size/7;
+  const parts=[
+    [.9*over,over?`${over} overdue task${over>1?"s":""}`:""],
+    [.18*gap,gap>.5?`${gap.toFixed(1)}h of work due this week not yet studied`:""],
+    [1.2*(1-done),done<.7?`Only ${Math.round(done*100)}% of tasks completed`:""],
+    [.35*(3-focus),focus<3?`Low focus rating (${focus.toFixed(1)}/5)`:""],
+    [.9*(1-cons),cons<.5?`Studied ${Math.round(cons*7)} of the last 7 days`:""]];
+  const z=-2+parts.reduce((a,p)=>a+p[0],0),p=1/(1+Math.exp(-z));
+  return{p,band:p<.35?"Low":p<.65?"Medium":"High",why:parts.filter(x=>x[1]).sort((a,b)=>b[0]-a[0]).slice(0,3).map(x=>x[1])};
+}
+const cls=b=>b==="Low"?"":b==="Medium"?"warn":"bad";
+
+function tips(){
+  const o=[],O=open(),od=O.filter(t=>diff(t.due)<0);
+  if(od.length)o.push(`You have ${od.length} overdue task${od.length>1?"s":""}. Start with “${od[0].title}” before anything new.`);
+  const ex=O.find(t=>t.type==="exam"&&diff(t.due)>=0&&diff(t.due)<=10);
+  if(ex){const d=Math.max(1,diff(ex.due));o.push(`“${ex.title}” is ${d===1?"tomorrow":`in ${d} days`}. Split ${ex.hours}h into about ${Math.round(ex.hours*60/Math.min(d,5))} min per day.`)}
+  if(!S.sessions.some(s=>s.date===today()))o.push("No study session logged today. Even 25 focused minutes keeps your streak alive.");
+  const f=sess(14);if(f.length>2&&f.reduce((a,s)=>a+s.focus,0)/f.length<3)o.push("Your focus ratings are low lately. Try 25 min study + 5 min break with your phone away.");
+  const hi=S.courses.filter(c=>risk(c).band==="High").map(c=>c.name);
+  if(hi.length)o.push(`${hi.join(", ")} ${hi.length>1?"are":"is"} at high risk. Give ${hi.length>1?"them":"it"} your first session of the day.`);
+  if(!o.length)o.push("You’re on track. Keep your routine and review upcoming deadlines weekly.");
+  return o;
+}
+
+const kpis=()=>{
+  const f=sess(14),T=S.tasks;
+  return `<div class="kpis">
+  <div class="kpi"><b>${hrs(sess(7)).toFixed(1)}h</b><small>Studied this week</small></div>
+  <div class="kpi"><b>${T.length?Math.round(T.filter(t=>t.done).length/T.length*100):0}%</b><small>Tasks completed</small></div>
+  <div class="kpi"><b>${f.length?(f.reduce((a,s)=>a+s.focus,0)/f.length).toFixed(1):"–"}</b><small>Avg focus (of 5)</small></div>
+  <div class="kpi"><b>${streak()}</b><small>Day streak</small></div></div>`};
+
+const taskRow=(t,full)=>`<div class="task ${t.done?"done":""}"><div><div class="tt">${esc(t.title)}</div>
+  <div class="meta"><span>${esc(cname(t.course))}</span><span class="badge ${t.type==="exam"?"bad":t.type==="quiz"?"warn":""}">${t.type}</span>
+  <span>${t.done?"Done":dueLabel(t.due)}</span><span>${t.hours}h${!t.done&&!full?` · try ${suggest(t)} min today`:""}</span></div></div>
+  <div>${t.done?"":`<button class="btn s p" data-act="done" data-id="${t.id}">Done</button> `}${full?`<button class="btn s" data-act="del" data-id="${t.id}">Delete</button>`:""}</div></div>`;
+
+const courseOpts=()=>S.courses.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("");
+const V={
+  today(){
+    if(!S.courses.length)return `<div class="card empty"><h2>Welcome to UniFlow</h2><p class="muted">Add your courses in Planner, or explore the app with demo data.</p><button class="btn p" data-act="sample">Load sample data</button></div>`;
+    const o=open().slice(0,3);
+    return `<div class="grid2"><section class="card"><h2>Focus now</h2>${o.length?o.map(t=>taskRow(t)).join(""):`<p class="muted">No open tasks. Add one in Planner.</p>`}</section>
+    <section class="card"><h2>Assistant</h2><ul class="tips">${tips().map(t=>`<li>${esc(t)}</li>`).join("")}</ul></section></div>${kpis()}`;
+  },
+  planner(){
+    const O=open(),D=S.tasks.filter(t=>t.done);
+    return `<section class="card"><h2>Courses</h2>
+    <form class="f" data-form="course"><label>New course<input name="name" required maxlength="40" placeholder="e.g. Machine Learning"></label><button class="btn p">Add course</button></form>
+    <div class="chips">${S.courses.map(c=>`<span class="chip">${esc(c.name)}<button data-act="delc" data-id="${c.id}" aria-label="Remove">×</button></span>`).join("")}</div></section>
+    <section class="card"><h2>Add task</h2>${S.courses.length?`<form class="f" data-form="task">
+    <label>Title<input name="title" required maxlength="60"></label><label>Course<select name="course">${courseOpts()}</select></label>
+    <label>Type<select name="type"><option value="assignment">Assignment</option><option value="quiz">Quiz</option><option value="exam">Exam</option></select></label>
+    <label>Due<input type="date" name="due" required value="${addDays(3)}"></label><label>Hours needed<input type="number" name="hours" min=".5" step=".5" value="2" required></label>
+    <button class="btn p">Add task</button></form>`:`<p class="muted">Add a course first.</p>`}</section>
+    <section class="card"><h2>Open tasks (by priority)</h2>${O.length?O.map(t=>taskRow(t,1)).join(""):`<p class="muted">Nothing open.</p>`}
+    ${D.length?`<h2 style="margin-top:18px">Completed</h2>${D.map(t=>taskRow(t,1)).join("")}`:""}</section>`;
+  },
+  analytics(){
+    const days=[...Array(7)].map((_,i)=>{const k=addDays(i-6);return{k,m:S.sessions.filter(s=>s.date===k).reduce((a,s)=>a+s.min,0)}});
+    const mx=Math.max(60,...days.map(d=>d.m));
+    const bars=days.map((d,i)=>{const h=Math.round(d.m/mx*100),x=14+i*44,l=new Date(d.k+"T00:00").toLocaleDateString("en",{weekday:"short"});
+      return `<rect x="${x}" y="${112-h}" width="30" height="${h}" rx="6" style="fill:var(--accent)"/><text x="${x+15}" y="130" text-anchor="middle">${l}</text>${d.m?`<text x="${x+15}" y="${106-h}" text-anchor="middle">${d.m}</text>`:""}`}).join("");
+    const by=S.courses.map(c=>({n:c.name,h:hrs(sess(7).filter(s=>s.course===c.id))})),bm=Math.max(1,...by.map(b=>b.h));
+    return `<section class="card"><h2>Log a study session</h2>${S.courses.length?`<form class="f" data-form="session">
+    <label>Course<select name="course">${courseOpts()}</select></label><label>Minutes<input type="number" name="min" min="5" max="600" value="45" required></label>
+    <label>Focus (1–5)<select name="focus"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></label>
+    <button class="btn p">Log session</button></form>`:`<p class="muted">Add a course first.</p>`}</section>${kpis()}
+    <section class="card"><h2>Minutes studied — last 7 days</h2><svg viewBox="0 0 320 140" width="100%" role="img" aria-label="Study minutes per day">${bars}</svg></section>
+    <section class="card"><h2>Hours by course (this week)</h2>${by.length?by.map(b=>`<div class="bar"><span>${esc(b.n)}</span><div class="meter"><i style="width:${b.h/bm*100}%"></i></div><b>${b.h.toFixed(1)}h</b></div>`).join(""):`<p class="muted">No courses yet.</p>`}</section>`;
+  },
+  risk(){
+    return `<section class="card"><h2>Risk of falling behind</h2><p class="muted" style="margin-top:0">Scores combine overdue work, workload vs. study time, completion rate, focus and consistency. It is a transparent weighted model (logistic), not a trained ML model yet — trained prediction is the next step.</p></section>`+
+    (S.courses.length?S.courses.map(c=>{const r=risk(c),pc=Math.round(r.p*100);
+      return `<section class="card"><div class="rrow"><h3>${esc(c.name)}</h3><span class="badge ${cls(r.band)}">${r.band} · ${pc}%</span></div>
+      <div class="meter ${cls(r.band)}"><i style="width:${pc}%"></i></div>
+      <div class="muted">${r.why.length?r.why.map(w=>"• "+esc(w)).join("<br>"):"No warning signs right now."}</div></section>`}).join(""):`<div class="card empty"><p class="muted">Add courses and tasks to see predictions.</p></div>`);
+  }
+};
+const TABS=[["today","Today"],["planner","Planner"],["analytics","Analytics"],["risk","Risk"]];
+function render(){
+  document.getElementById("tabs").innerHTML=TABS.map(t=>`<button class="${t[0]===tab?"on":""}" data-act="tab" data-id="${t[0]}">${t[1]}</button>`).join("");
+  document.getElementById("view").innerHTML=V[tab]();
+}
+function sample(){
+  const c=["Machine Learning","Data Warehousing","Statistics","Java"].map(n=>({id:uid(),name:n}));
+  const t=(i,title,type,d,h,done)=>({id:uid(),title,course:c[i].id,type,due:addDays(d),hours:h,done:!!done});
+  S.courses=c;
+  S.tasks=[t(0,"Regression assignment","assignment",2,4),t(1,"Midterm exam","exam",6,8),t(2,"Probability quiz","quiz",1,2),t(3,"Library system project","assignment",-1,5),t(0,"Intro notebook","assignment",-3,2,1),t(2,"Statistics homework","assignment",9,3)];
+  S.sessions=[[0,0,50,4],[1,1,40,3],[2,0,60,5],[4,2,30,2],[5,3,45,3],[6,1,35,2],[3,0,55,4]].map(a=>({id:uid(),course:c[a[1]].id,date:addDays(-a[0]),min:a[2],focus:a[3]}));
+  save();render();
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-act]");if(!b)return;const a=b.dataset.act,id=b.dataset.id;
+  if(a==="tab")tab=id;
+  else if(a==="done"){const t=S.tasks.find(x=>x.id===id);if(t)t.done=true}
+  else if(a==="del")S.tasks=S.tasks.filter(x=>x.id!==id);
+  else if(a==="delc"){S.courses=S.courses.filter(x=>x.id!==id);S.tasks=S.tasks.filter(x=>x.course!==id);S.sessions=S.sessions.filter(x=>x.course!==id)}
+  else if(a==="sample")return sample();
+  else if(a==="clear"){if(!confirm("Delete all UniFlow data?"))return;S={courses:[],tasks:[],sessions:[]}}
+  save();render();
+});
+document.addEventListener("submit",e=>{
+  e.preventDefault();const f=e.target,k=f.dataset.form,d=Object.fromEntries(new FormData(f));
+  if(k==="course")S.courses.push({id:uid(),name:d.name.trim()});
+  if(k==="task")S.tasks.push({id:uid(),title:d.title.trim(),course:d.course,type:d.type,due:d.due,hours:+d.hours,done:false});
+  if(k==="session")S.sessions.push({id:uid(),course:d.course,date:today(),min:+d.min,focus:+d.focus});
+  save();render();
+});
+render();
+</script>
+</body>
+</html>
